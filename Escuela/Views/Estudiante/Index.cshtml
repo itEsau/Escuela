@@ -1,0 +1,92 @@
+﻿<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-3.3.1.min.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<link href="~/Content/CSS/Busqueda.css" rel="stylesheet" />
+@model IEnumerable<Escuela.Models.Estudiantes>
+<center>
+    <h1>Lista de estudiantes</h1>
+</center>
+<h2>@ViewBag.Title</h2>
+<div class="text-center">
+    @using (Html.BeginForm("Index", "Estudiante", FormMethod.Get, new { @class = "form-inline" }))
+    {
+        <div class="form-group mx-sm-3 mb-2">
+            @Html.TextBox("searchString", ViewBag.CurrentFilter as string, new { @class = "form-control form-control-sm", placeholder = "Buscar" })
+        </div>
+        <button type="submit" class="btn btn-primary mb-2">Buscar</button>
+    }
+</div>
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            <p><strong>Error:</strong></p>
+            @Html.ValidationSummary(true)
+        </div>
+    }
+
+    <table class="table">
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Correo</th>
+            <th>Acción</th>
+        </tr>
+        @foreach (var estudiante in Model)
+        {
+            <tr>
+                <td>@estudiante.idEstudiante</td>
+                <td>@estudiante.nombre</td>
+                <td>@estudiante.apellidos</td>
+                <td>@estudiante.correo</td>
+                <td>
+                    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal-@estudiante.idEstudiante">Detalles</button>
+                </td>
+            </tr>
+
+
+            <div class="modal fade" id="myModal-@estudiante.idEstudiante" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="myModalLabel">@estudiante.nombre @estudiante.apellidos</h4>
+                        </div>
+                        <div class="modal-body">
+                            <h5>Cursos Asignados:</h5>
+                            <ul>
+                                @foreach (var curso in estudiante.CursoEstudiante)
+                                {
+                                    <li>@curso.Cursos.nombre - <a href="@Url.Action("RemoverCursos", "Estudiante", new { idEstudiante = estudiante.idEstudiante, idCursos = curso.idCurso })">Remover</a></li>
+                                }
+                            </ul>
+                            <h5>Asignar Curso:</h5>
+                            @using (Html.BeginForm("AsignarCursos", "Estudiante", FormMethod.Post))
+                            {
+                                @Html.Hidden("idEstudiante", estudiante.idEstudiante)
+                                <div class="form-group">
+                                    @Html.Label("Cursos:")
+                                    @Html.DropDownList("IdCurso", new SelectList(ViewBag.Cursos, "idCurso", "nombre"), "Seleccione un curso", new { @class = "form-control" })
+                                </div>
+                                <div id="mensaje"></div>
+                                <button type="submit" class="btn btn-primary">Asignar</button>
+                            }
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </table>
+
+
+
+
+
+
+
+
+
+
+
